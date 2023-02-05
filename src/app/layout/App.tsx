@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; 
 import { Activity } from '../models/activity';
 import NavBar from './NavBar';
 import { Container } from 'semantic-ui-react';
 import ActivityDashboard from '../activities/dashboard/ActivityDashboard';
 import {v4 as uuid} from 'uuid';
+import agent from '../api/agent';
 
 function App() {
   const [activities, SetActivities] = useState<Activity[]>([]);
@@ -12,8 +12,8 @@ function App() {
   const [editMode, setEditMode] = useState(false); 
 
   useEffect(() => {
-    axios.get<Activity[]>('http://localhost:5000/api/activities').then(response => {
-      SetActivities(response.data);
+    agent.Activities.list().then(response => {
+      SetActivities(response);
     })
   }, [])
 
@@ -42,6 +42,10 @@ function handleCreateOrEditActivity(activity: Activity) {
     SetSelectedActivity(activity);
 }
 
+function handleDeleteActivity(id: string) {
+  SetActivities([...activities.filter(x => x.id !== id)]);
+}
+
   return (
       <>
         <NavBar openForm={handleFormOpen}/>
@@ -55,6 +59,7 @@ function handleCreateOrEditActivity(activity: Activity) {
             openForm={handleFormOpen}
             closeForm={handleFormClose}
             createOrEdit={handleCreateOrEditActivity}
+            deleteActivity={handleDeleteActivity}
              />
         </Container>
         </>
