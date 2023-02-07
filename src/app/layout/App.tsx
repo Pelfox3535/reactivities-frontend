@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Activity } from '../models/activity';
 import NavBar from './NavBar';
-import { Container } from 'semantic-ui-react';
+import { Button, Container } from 'semantic-ui-react';
 import ActivityDashboard from '../activities/dashboard/ActivityDashboard';
 import {v4 as uuid} from 'uuid';
 import agent from '../api/agent';
+import { useStore } from '../stores/store';
+import { observer } from 'mobx-react-lite'
 
 function App() {
+  const {activityStore} = useStore();
+
   const [activities, SetActivities] = useState<Activity[]>([]);
   const [selectedActivity, SetSelectedActivity] = useState<Activity | undefined>(undefined);
   const [editMode, setEditMode] = useState(false);
@@ -42,7 +46,7 @@ function handleFormClose(id?: string) {
 
 function handleCreateOrEditActivity(activity: Activity) {
   setSubmitting(true);
-  if(activity.id) {
+  if(activity.id) { 
     agent.Activities.update(activity).then(() => {
       SetActivities([...activities.filter(x => x.id !== activity.id), activity])
       SetSelectedActivity(activity);
@@ -72,6 +76,8 @@ function handleDeleteActivity(id: string) {
       <>
         <NavBar openForm={handleFormOpen}/>
         <Container style={{marginTop: '7em'}}>
+          <h2>{activityStore.title}</h2>
+          <Button content='Add exclamation!' positive onClick={activityStore.setTitle} />
           <ActivityDashboard 
             activities={activities}
             selectedActivity={selectedActivity}
@@ -89,4 +95,4 @@ function handleDeleteActivity(id: string) {
   );
 }
 
-export default App;
+export default observer(App);
